@@ -2,43 +2,63 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Movimiento : MonoBehaviour
+namespace Assets.Scripts
 {
-    private float _horizontal;
-    private bool _jumping = false;
-    private float speed = 2;
-    private float jumpforce = 5;
-    private Animator animator;
-    private Rigidbody2D _rigidbody2D;
-    // Start is called before the first frame update
-    void Start()
+    public class Movimiento : MonoBehaviour
     {
-        _rigidbody2D = GetComponent<Rigidbody2D>();
-    }
-    
-    // Update is called once per frame
-    void Update()
-    {
-        _horizontal = Input.GetAxis("Horizontal");
-        transform.Translate(new Vector3(_horizontal, 0, 0) * Time.fixedDeltaTime * speed);
-        transform.position += new Vector3(_horizontal, 0, 0) * Time.fixedDeltaTime * speed;
-        if (Input.GetKeyDown(KeyCode.Space))
+        private float _horizontal;
+        public float speed;
+        public float jumpforce;
+        private Animator _animator;
+        private Rigidbody2D _rigidbody2D;
+        private bool _grounded;
+        // Start is called before the first frame update
+        void Start()
         {
-            _jumping = true;
+            _rigidbody2D = GetComponent<Rigidbody2D>();
+            _animator = GetComponent<Animator>();
         }
-    }
-    private void FixedUpdate()
-    {
-        if (_jumping)
+
+        // Update is called once per frame
+        void Update()
         {
-            _rigidbody2D.AddForce(new Vector2(0, jumpforce), ForceMode2D.Impulse);
-            _jumping = false;
+            _horizontal = Input.GetAxis("Horizontal");
+            if(_horizontal < 0.0f)
+            {
+                transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+            }
+            else if(_horizontal > 0.0f)
+            {
+                transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            }
+
+            _animator.SetBool("running", _horizontal != 0.0f);
+            Debug.DrawRay(transform.position, Vector3.down * 0.3f, Color.red);
+            if (Physics2D.Raycast(transform.position, Vector3.down, 0.3f))
+            {
+                _grounded = true;
+            }
+            else _grounded = false;
+
+            _animator.SetBool("jumping", !_grounded);
+            if (Input.GetKeyDown(KeyCode.W) && _grounded)
+            {
+               
+                jump();
+            }
+            
 
         }
-        else
-        {
-            animator.SetBool("Jumping", false);
-        }
-    }
 
+        private void jump()
+        {
+            _rigidbody2D.AddForce(Vector2.up * jumpforce);
+           
+        }
+        private void FixedUpdate()
+        {
+            _rigidbody2D.velocity = new Vector2(_horizontal * speed, _rigidbody2D.velocity.y);
+        }
+
+    }
 }
