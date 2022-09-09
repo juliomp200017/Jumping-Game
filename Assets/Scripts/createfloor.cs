@@ -4,16 +4,30 @@ using UnityEngine;
 
 public class createfloor : MonoBehaviour
 {
-    public GameObject floor;
+    public GameObject ground;
+    private float increment = 3f;
     // Start is called before the first frame update
-    void Start()
+    //void Start()
+    //{
+
+
+    //}
+
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        InvokeRepeating("create_floor", 0, 3);
+        if (collision.gameObject)
+        {
+            //InvokeRepeating("Ground", 0, 2);
+            Ground();
+        }
+
     }
 
     // Update is called once per frame
-    void create_floor()
+    void Ground()
     {
-        Instantiate(floor, transform.position, Quaternion.identity);
+        float Spawn = transform.position.x + increment;
+        Instantiate(ground, transform.position = new Vector3(Spawn, -3.6f, 1f), Quaternion.identity);
+        Debug.Log(Spawn);
     }
 }
